@@ -2,7 +2,7 @@ services:
   mas-admin:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prebuilt
     image: mas-admin:dist
     restart: unless-stopped
     ports:

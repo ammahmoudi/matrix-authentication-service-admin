@@ -1,8 +1,28 @@
-# Pre-built: run `npm run build` locally first, then build this image.
-# This avoids needing an npm mirror on the server.
+# Full build image: builds the SPA in a Node stage, then serves it via nginx.
+# This is the default so published images can't accidentally ship a stale dist/.
+
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN npm ci
+
+# Optional build-time config (Vite reads VITE_* from environment at build time)
+ARG VITE_MAS_BASE_URL
+ARG VITE_CLIENT_ID
+ARG VITE_REDIRECT_BASE
+ARG VITE_CHAT_BASE_URL
+ENV VITE_MAS_BASE_URL=${VITE_MAS_BASE_URL}
+ENV VITE_CLIENT_ID=${VITE_CLIENT_ID}
+ENV VITE_REDIRECT_BASE=${VITE_REDIRECT_BASE}
+ENV VITE_CHAT_BASE_URL=${VITE_CHAT_BASE_URL}
+
+COPY . .
+RUN npm run build
+
 FROM nginx:alpine
 
-COPY dist /usr/share/nginx/html/mas-admin
+COPY --from=builder /app/dist /usr/share/nginx/html/mas-admin
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Runtime env injection (writes /mas-admin/config.js at container start)

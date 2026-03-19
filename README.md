@@ -149,6 +149,17 @@ MAS_ADMIN_CHAT_BASE_URL=https://chat.example.com
 
 Note: The default build does NOT request `offline_access` (refresh tokens), because many MAS installations deny it by policy unless explicitly allowed.
 
+#### Offline build (prebuilt dist/)
+
+If you need to build without accessing npm registries during the Docker build, build the SPA locally first and use `Dockerfile.prebuilt`:
+
+```bash
+npm ci
+npm run build
+
+docker build -t mas-admin:dist -f Dockerfile.prebuilt .
+```
+
 #### Docker Hub (no build needed for users)
 
 If you publish the prebuilt image, users can just pull and run it:

@@ -147,6 +147,35 @@ MAS_ADMIN_CHAT_BASE_URL=https://chat.example.com
 
 (`VITE_*` names are also accepted at runtime for convenience.)
 
+#### Docker Hub (no build needed for users)
+
+If you publish the prebuilt image, users can just pull and run it:
+
+```bash
+docker pull amahmoudi/mas-admin:latest
+
+docker run --rm -p 8081:80 \
+  -e MAS_ADMIN_MAS_BASE_URL=https://auth.yourserver.com \
+  -e MAS_ADMIN_CLIENT_ID=00000000000000000000000007 \
+  -e MAS_ADMIN_REDIRECT_BASE=https://matrix.yourserver.com \
+  -e MAS_ADMIN_CHAT_BASE_URL=https://chat.yourserver.com \
+  amahmoudi/mas-admin:latest
+```
+
+Docker Compose example (behind a reverse proxy; no port publish needed if proxied):
+
+```yaml
+services:
+  mas-admin:
+    image: amahmoudi/mas-admin:latest
+    restart: unless-stopped
+    environment:
+      MAS_ADMIN_MAS_BASE_URL: https://auth.yourserver.com
+      MAS_ADMIN_CLIENT_ID: "00000000000000000000000007"
+      MAS_ADMIN_REDIRECT_BASE: https://matrix.yourserver.com
+      MAS_ADMIN_CHAT_BASE_URL: https://chat.yourserver.com
+```
+
 ### 5. Grant admin to your account
 
 ```bash

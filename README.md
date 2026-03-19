@@ -12,7 +12,7 @@ Built with React + TypeScript + Tailwind CSS. Uses MAS's Admin REST API with PKC
 
 ## Setup
 
-### 1. Register this app as a client in MAS
+### 1) Register this app as a client in MAS
 
 Add to your `mas/config.yaml`:
 
@@ -131,6 +131,21 @@ docker build -t mas-admin:latest -f Dockerfile.build \
   --build-arg VITE_CHAT_BASE_URL=https://chat.yourserver.com \
   .
 ```
+
+#### Runtime env (recommended for published images)
+
+The Docker image also supports runtime configuration by generating `/mas-admin/config.js` at container start.
+
+Supported env vars:
+
+```bash
+MAS_ADMIN_MAS_BASE_URL=https://auth.example.com
+MAS_ADMIN_CLIENT_ID=00000000000000000000000007
+MAS_ADMIN_REDIRECT_BASE=https://matrix.example.com
+MAS_ADMIN_CHAT_BASE_URL=https://chat.example.com
+```
+
+(`VITE_*` names are also accepted at runtime for convenience.)
 
 ### 5. Grant admin to your account
 

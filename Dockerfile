@@ -1,6 +1,12 @@
-# Pre-built: run `npm run build` locally first, then scp dist/ to server
-# This avoids needing an npm mirror on the server
+# Pre-built: run `npm run build` locally first, then build this image.
+# This avoids needing an npm mirror on the server.
 FROM nginx:alpine
+
 COPY dist /usr/share/nginx/html/mas-admin
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Runtime env injection (writes /mas-admin/config.js at container start)
+COPY docker-entrypoint.d/99-runtime-config.sh /docker-entrypoint.d/99-runtime-config.sh
+RUN chmod +x /docker-entrypoint.d/99-runtime-config.sh
+
 EXPOSE 80

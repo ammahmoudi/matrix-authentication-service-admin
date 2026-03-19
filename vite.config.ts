@@ -6,5 +6,8 @@ export default defineConfig({
   base: '/mas-admin/',
   build: {
     outDir: 'dist',
+    rollupOptions: {
+      external: ['/mas-admin/config.js'],
+    },
   },
 })

@@ -135,7 +135,7 @@ docker build -t mas-admin:latest -f Dockerfile.build \
 ### 5. Grant admin to your account
 
 ```bash
-docker exec mamood-mas mas-cli manage promote-admin YOUR_USERNAME
+docker exec mas-admin mas-cli manage promote-admin YOUR_USERNAME
 ```
 
 Open `http://your-server:8080/mas-admin/` and sign in.

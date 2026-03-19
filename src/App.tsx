@@ -5,6 +5,10 @@ import LoginPage from './pages/LoginPage'
 import UsersPage from './pages/UsersPage'
 import RegistrationTokensPage from './pages/RegistrationTokensPage'
 import SessionsPage from './pages/SessionsPage'
+import EmailsPage from './pages/EmailsPage'
+import UpstreamOAuthPage from './pages/UpstreamOAuthPage'
+import PolicyPage from './pages/PolicyPage'
+import ServerPage from './pages/ServerPage'
 
 export default function App() {
   const auth = useAuth()
@@ -42,6 +46,10 @@ export default function App() {
         <Route path="/mas-admin/users" element={<UsersPage />} />
         <Route path="/mas-admin/tokens" element={<RegistrationTokensPage />} />
         <Route path="/mas-admin/sessions" element={<SessionsPage />} />
+        <Route path="/mas-admin/emails" element={<EmailsPage />} />
+        <Route path="/mas-admin/upstream-oauth" element={<UpstreamOAuthPage />} />
+        <Route path="/mas-admin/policy" element={<PolicyPage />} />
+        <Route path="/mas-admin/server" element={<ServerPage />} />
         <Route path="*" element={<Navigate to="/mas-admin/users" replace />} />
       </Routes>
     </Layout>

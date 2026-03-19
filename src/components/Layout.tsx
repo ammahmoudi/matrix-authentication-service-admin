@@ -1,12 +1,16 @@
 import { useAuth } from 'react-oidc-context'
 import { NavLink } from 'react-router-dom'
-import { Users, KeyRound, MonitorSmartphone, LogOut, ShieldCheck } from 'lucide-react'
+import { Users, KeyRound, MonitorSmartphone, LogOut, ShieldCheck, Mail, Link2, FileText, Server } from 'lucide-react'
 import clsx from 'clsx'
 
 const nav = [
   { to: '/mas-admin/users', label: 'Users', icon: Users },
   { to: '/mas-admin/tokens', label: 'Tokens', icon: KeyRound },
   { to: '/mas-admin/sessions', label: 'Sessions', icon: MonitorSmartphone },
+  { to: '/mas-admin/emails', label: 'Emails', icon: Mail },
+  { to: '/mas-admin/upstream-oauth', label: 'OAuth', icon: Link2 },
+  { to: '/mas-admin/policy', label: 'Policy', icon: FileText },
+  { to: '/mas-admin/server', label: 'Server', icon: Server },
 ]
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -61,7 +65,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <ShieldCheck className="w-4 h-4 text-brand-500" />
           <span className="font-semibold text-sm">MAS Admin</span>
         </div>
-        <button onClick={() => auth.signoutRedirect()} className="text-gray-400 hover:text-gray-100 p-1">
+        <button
+          onClick={() => auth.signoutRedirect()}
+          aria-label="Sign out"
+          title="Sign out"
+          className="text-gray-400 hover:text-gray-100 p-1"
+        >
           <LogOut className="w-4 h-4" />
         </button>
       </header>

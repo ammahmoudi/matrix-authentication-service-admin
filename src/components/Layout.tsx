@@ -76,7 +76,30 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* Main content */}
-      <main className="flex-1 overflow-auto p-4 sm:p-6 pb-20 sm:pb-6">{children}</main>
+      <main className="flex-1 overflow-auto p-4 sm:p-6 pb-20 sm:pb-6 flex flex-col">
+        <div className="flex-1">{children}</div>
+        <footer className="pt-6 text-xs text-gray-500">
+          Built by{' '}
+          <a
+            href="https://github.com/ammahmoudi"
+            target="_blank"
+            rel="noreferrer"
+            className="underline hover:text-gray-300"
+          >
+            @ammahmoudi
+          </a>
+          {' '}
+          ·{' '}
+          <a
+            href="https://github.com/ammahmoudi/matrix-authentication-service-admin"
+            target="_blank"
+            rel="noreferrer"
+            className="underline hover:text-gray-300"
+          >
+            source
+          </a>
+        </footer>
+      </main>
 
       {/* Bottom tab bar — mobile only */}
       <nav className="sm:hidden fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-800 flex">

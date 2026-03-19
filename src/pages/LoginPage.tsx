@@ -22,6 +22,28 @@ export default function LoginPage() {
         >
           Sign in with MAS
         </button>
+
+        <p className="text-xs text-gray-500">
+          Built by{' '}
+          <a
+            href="https://github.com/ammahmoudi"
+            target="_blank"
+            rel="noreferrer"
+            className="underline hover:text-gray-300"
+          >
+            @ammahmoudi
+          </a>
+          {' '}
+          ·{' '}
+          <a
+            href="https://github.com/ammahmoudi/matrix-authentication-service-admin"
+            target="_blank"
+            rel="noreferrer"
+            className="underline hover:text-gray-300"
+          >
+            source
+          </a>
+        </p>
       </div>
     </div>
   )

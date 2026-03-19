@@ -147,6 +147,8 @@ MAS_ADMIN_CHAT_BASE_URL=https://chat.example.com
 
 (`VITE_*` names are also accepted at runtime for convenience.)
 
+Note: The default build does NOT request `offline_access` (refresh tokens), because many MAS installations deny it by policy unless explicitly allowed.
+
 #### Docker Hub (no build needed for users)
 
 If you publish the prebuilt image, users can just pull and run it:

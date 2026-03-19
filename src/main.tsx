@@ -16,14 +16,15 @@ const oidcConfig = {
   userStore: new WebStorageStateStore({ store: window.localStorage }),
   stateStore: new WebStorageStateStore({ store: window.localStorage }),
 
-  // Ask for refresh tokens so we can renew without full redirect logins.
-  // MAS must allow offline_access for this client.
-  scope: `openid ${ADMIN_SCOPE} offline_access`,
+  // Keep scopes minimal by default.
+  // Some MAS installations deny `offline_access` unless explicitly allowed,
+  // which would block login with a "denied by policy" page.
+  scope: `openid ${ADMIN_SCOPE}`,
   response_type: 'code',
-  useRefreshTokens: true,
+  useRefreshTokens: false,
   // PKCE is on by default in oidc-client-ts
   post_logout_redirect_uri: REDIRECT_BASE + '/mas-admin/',
-  automaticSilentRenew: true,
+  automaticSilentRenew: false,
   onSigninCallback: () => {
     // Remove auth params from URL after login
     window.history.replaceState({}, document.title, '/mas-admin/')

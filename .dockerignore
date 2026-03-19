@@ -1,5 +1,7 @@
 node_modules
-/dist
 .env
 .git
 .gitignore
+
+# NOTE: dist/ is required by Dockerfile (prebuilt mode)
+# If you want to exclude it for other builds, use Dockerfile.build instead.

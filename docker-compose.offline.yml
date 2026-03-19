@@ -1,0 +1,9 @@
+services:
+  mas-admin:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: mas-admin:dist
+    restart: unless-stopped
+    ports:
+      - "8081:80"

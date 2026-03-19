@@ -1,0 +1,14 @@
+services:
+  mas-admin:
+    build:
+      context: .
+      dockerfile: Dockerfile.build
+      args:
+        VITE_MAS_BASE_URL: ${VITE_MAS_BASE_URL}
+        VITE_CLIENT_ID: ${VITE_CLIENT_ID}
+        VITE_REDIRECT_BASE: ${VITE_REDIRECT_BASE}
+        VITE_CHAT_BASE_URL: ${VITE_CHAT_BASE_URL}
+    image: mas-admin:latest
+    restart: unless-stopped
+    ports:
+      - "8081:80"

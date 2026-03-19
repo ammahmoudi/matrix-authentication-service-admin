@@ -21,42 +21,115 @@ clients:
   - client_id: "00000000000000000000000007"
     client_auth_method: none
     redirect_uris:
-      - "https://your-matrix-server:8080/mas-admin/callback"
+      # Must match where this UI is served.
+      # If you serve the UI behind your reverse proxy at https://matrix.example.com/mas-admin/
+      # then the callback must be:
+      - "https://matrix.yourserver.com/mas-admin/callback"
 ```
 
 ### 2. Configure
 
-Edit `src/config.ts`:
+Configuration is injected at build time via Vite env vars.
 
-```ts
-export const MAS_BASE_URL = 'https://your-mas-auth-domain'
-export const CLIENT_ID = '00000000000000000000000007'
-export const REDIRECT_URI = window.location.origin + '/mas-admin/callback'
+Copy `.env.example` to `.env` (it is gitignored) and edit the values:
+
+```dotenv
+VITE_MAS_BASE_URL=https://auth.yourserver.com
+VITE_CLIENT_ID=00000000000000000000000007
+VITE_REDIRECT_BASE=https://matrix.yourserver.com
+VITE_CHAT_BASE_URL=https://chat.yourserver.com
 ```
+
+Notes:
+
+- These values are **not secrets** (PKCE OAuth2; no client secret in the browser).
+- `VITE_REDIRECT_BASE` should be the public base of the reverse proxy that serves `/mas-admin/`.
 
 ### 3. Build
 
 ```bash
-npm install
+npm ci
 npm run build
 # Output is in dist/
 ```
 
 ### 4. Serve
 
-Copy `dist/` to your server and serve at `/mas-admin/`:
+There are two supported deployment modes:
+
+#### Docker Compose (recommended)
+
+Docker Compose reads `.env` automatically and passes values cleanly.
+
+#### A) Offline / limited internet server (prebuilt dist/)
+
+This uses the existing `Dockerfile` which **serves a prebuilt** `dist/` folder.
+
+Build the SPA on a connected machine:
 
 ```bash
-scp -r dist/ root@your-server:/opt/matrix-project/mas-admin/dist/
+npm ci
+npm run build
 ```
 
-nginx location (already in `nginx/default.conf`):
+Then build the nginx image (it copies `dist/` into the image):
 
-```nginx
-location /mas-admin/ {
-    alias /var/www/mas-admin/;
-    try_files $uri $uri/ /mas-admin/index.html;
-}
+```bash
+docker build -t mas-admin:dist -f Dockerfile .
+```
+
+Docker Compose example (requires `dist/` to exist in the build context):
+
+Also available as a file: `docker-compose.offline.yml`
+
+```yaml
+services:
+  mas-admin:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: mas-admin:dist
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+```
+
+You can also copy `dist/` to the server and run the image build there if Docker is available.
+
+#### B) Full Docker build (Node → nginx)
+
+Use `Dockerfile.build` to build the SPA inside Docker (requires npm access during build).
+
+Docker Compose example (build args come from `.env`):
+
+Also available as a file: `docker-compose.build.yml`
+
+```yaml
+services:
+  mas-admin:
+    build:
+      context: .
+      dockerfile: Dockerfile.build
+      args:
+        VITE_MAS_BASE_URL: ${VITE_MAS_BASE_URL}
+        VITE_CLIENT_ID: ${VITE_CLIENT_ID}
+        VITE_REDIRECT_BASE: ${VITE_REDIRECT_BASE}
+        VITE_CHAT_BASE_URL: ${VITE_CHAT_BASE_URL}
+    image: mas-admin:latest
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+```
+
+If you prefer plain Docker, you can still pass explicit build args:
+
+```bash
+docker build -t mas-admin:latest -f Dockerfile.build \
+  --build-arg VITE_MAS_BASE_URL=https://auth.yourserver.com \
+  --build-arg VITE_CLIENT_ID=00000000000000000000000007 \
+  --build-arg VITE_REDIRECT_BASE=https://matrix.yourserver.com \
+  --build-arg VITE_CHAT_BASE_URL=https://chat.yourserver.com \
+  .
 ```
 
 ### 5. Grant admin to your account
@@ -70,8 +143,10 @@ Open `http://your-server:8080/mas-admin/` and sign in.
 ## Development
 
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
-Set `MAS_BASE_URL` in `src/config.ts` to your running MAS instance. You'll need CORS allowed — or run a local proxy.
+For local dev, set `.env` values (especially `VITE_MAS_BASE_URL` and `VITE_REDIRECT_BASE`) and run the dev server.
+
+You may need CORS allowed on MAS for local dev, or run a local reverse proxy.

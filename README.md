@@ -202,42 +202,6 @@ Use the latest image and ensure your proxy preserves the `/mas-admin/` prefix.
 
 If you intentionally serve MAS Admin on a dedicated subdomain root (for example `https://admin.example.com/`), the current image supports that too.
 
-## Versioning (Repo + GitHub + Docker)
-
-This project follows **Semantic Versioning** (`MAJOR.MINOR.PATCH`).
-
-- Repository/package version: `package.json` → `version`
-- GitHub release tag: `vMAJOR.MINOR.PATCH` (example: `v1.1.0`)
-- Docker tags for the same release:
-  - `amahmoudi/mas-admin:1.1.0`
-  - `amahmoudi/mas-admin:1.1`
-  - `amahmoudi/mas-admin:1`
-  - `amahmoudi/mas-admin:latest`
-
-Suggested release flow:
-
-```bash
-# 1) bump version in package.json/package-lock.json
-npm version patch --no-git-tag-version
-
-# 2) commit + tag
-git add package.json package-lock.json
-git commit -m "chore(release): vX.Y.Z"
-git tag -a vX.Y.Z -m "MAS Admin vX.Y.Z"
-git push origin master
-git push origin vX.Y.Z
-
-# 3) build and publish Docker tags
-docker build -t amahmoudi/mas-admin:X.Y.Z .
-docker tag amahmoudi/mas-admin:X.Y.Z amahmoudi/mas-admin:X.Y
-docker tag amahmoudi/mas-admin:X.Y.Z amahmoudi/mas-admin:X
-docker tag amahmoudi/mas-admin:X.Y.Z amahmoudi/mas-admin:latest
-docker push amahmoudi/mas-admin:X.Y.Z
-docker push amahmoudi/mas-admin:X.Y
-docker push amahmoudi/mas-admin:X
-docker push amahmoudi/mas-admin:latest
-```
-
 ### 5. Grant admin to your account
 
 ```bash

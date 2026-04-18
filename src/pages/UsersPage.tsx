@@ -16,6 +16,7 @@ import {
 export default function UsersPage() {
   const auth = useAuth()
   const token = auth.user?.access_token ?? ''
+  const PAGE_SIZE = 20
 
   const [users, setUsers] = useState<(MasUser & { id: string })[]>([])
   const [loading, setLoading] = useState(true)
@@ -32,8 +33,23 @@ export default function UsersPage() {
   const [skipHomeserverCheck, setSkipHomeserverCheck] = useState(false)
   const [showCreate, setShowCreate] = useState(false)
   const [busy, setBusy] = useState<string | null>(null)
+  const [cursorStack, setCursorStack] = useState<string[]>([])
+  const [nextCursor, setNextCursor] = useState<string | null>(null)
+  const [totalCount, setTotalCount] = useState<number | null>(null)
 
-  const load = async () => {
+  const currentCursor = cursorStack.length > 0 ? cursorStack[cursorStack.length - 1] : undefined
+
+  const extractAfterCursor = (link?: string): string | null => {
+    if (!link) return null
+    try {
+      const url = new URL(link, window.location.origin)
+      return url.searchParams.get('page[after]')
+    } catch {
+      return null
+    }
+  }
+
+  const load = async (after?: string) => {
     try {
       setLoading(true)
       setError('')
@@ -42,8 +58,12 @@ export default function UsersPage() {
         status: status || null,
         admin: adminOnly ? true : null,
         legacyGuest: legacyGuestOnly ? true : null,
+        first: PAGE_SIZE,
+        after,
       })
       setUsers(res.data.map(d => ({ id: d.id, ...d.attributes })))
+      setTotalCount(res.meta?.count ?? null)
+      setNextCursor(extractAfterCursor(res.links?.next))
     } catch (e: any) {
       setError(e.message)
     } finally {
@@ -51,11 +71,27 @@ export default function UsersPage() {
     }
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => { load(undefined) }, [])
 
   const handleFilter = (e: React.FormEvent) => {
     e.preventDefault()
-    load()
+    setCursorStack([])
+    load(undefined)
+  }
+
+  const goToNextPage = async () => {
+    if (!nextCursor || loading) return
+    const nextStack = [...cursorStack, nextCursor]
+    setCursorStack(nextStack)
+    await load(nextCursor)
+  }
+
+  const goToPrevPage = async () => {
+    if (cursorStack.length === 0 || loading) return
+    const nextStack = cursorStack.slice(0, -1)
+    setCursorStack(nextStack)
+    const prevCursor = nextStack.length > 0 ? nextStack[nextStack.length - 1] : undefined
+    await load(prevCursor)
   }
 
   const toggleLock = async (u: MasUser & { id: string }) => {
@@ -67,7 +103,7 @@ export default function UsersPage() {
       } else {
         await lockUser(token, u.id)
       }
-      await load()
+      await load(currentCursor)
     } catch (e: any) {
       alert(e.message)
     } finally {
@@ -80,7 +116,7 @@ export default function UsersPage() {
     setBusy(u.id)
     try {
       await setAdmin(token, u.id, !u.admin)
-      await load()
+      await load(currentCursor)
     } catch (e: any) {
       alert(e.message)
     } finally {
@@ -93,7 +129,7 @@ export default function UsersPage() {
     setBusy(u.id)
     try {
       await deactivateUser(token, u.id, { skipErase: skipEraseOnDeactivate })
-      await load()
+      await load(currentCursor)
     } catch (e: any) {
       alert(e.message)
     } finally {
@@ -106,7 +142,7 @@ export default function UsersPage() {
     setBusy(u.id)
     try {
       await reactivateUser(token, u.id)
-      await load()
+      await load(currentCursor)
     } catch (e: any) {
       alert(e.message)
     } finally {
@@ -138,7 +174,7 @@ export default function UsersPage() {
       setNewUsername('')
       setSkipHomeserverCheck(false)
       setShowCreate(false)
-      await load()
+      await load(currentCursor)
     } catch (e: any) {
       alert(e.message)
     } finally {
@@ -152,7 +188,7 @@ export default function UsersPage() {
         <h1 className="text-xl font-bold">Users</h1>
         <div className="flex gap-2">
           <button onClick={() => setShowCreate(!showCreate)} className="text-sm text-gray-300 hover:text-white">{showCreate ? 'Cancel' : '+ Create'}</button>
-          <button onClick={load} className="text-sm text-brand-400 hover:text-brand-300">Refresh</button>
+          <button onClick={() => load(currentCursor)} className="text-sm text-brand-400 hover:text-brand-300">Refresh</button>
         </div>
       </div>
 
@@ -373,6 +409,29 @@ export default function UsersPage() {
                 </div>
               </div>
             ))}
+          </div>
+
+          <div className="flex items-center justify-between mt-4 text-sm text-gray-400">
+            <div>
+              Page {cursorStack.length + 1}
+              {typeof totalCount === 'number' ? ` • ${totalCount} total users` : ''}
+            </div>
+            <div className="flex gap-2">
+              <button
+                disabled={loading || cursorStack.length === 0}
+                onClick={goToPrevPage}
+                className="text-xs px-3 py-1 rounded border border-gray-600 hover:bg-gray-700 text-gray-300 transition-colors disabled:opacity-50"
+              >
+                Previous
+              </button>
+              <button
+                disabled={loading || !nextCursor}
+                onClick={goToNextPage}
+                className="text-xs px-3 py-1 rounded border border-gray-600 hover:bg-gray-700 text-gray-300 transition-colors disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
           </div>
         </>
       )}
